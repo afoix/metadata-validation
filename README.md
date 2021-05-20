@@ -1,4 +1,4 @@
-# metadata-validation
+# Metadata-validation
 
 This repository contains the metadata-validation framework developed as part of my thesis.
 
