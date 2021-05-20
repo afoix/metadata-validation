@@ -1,0 +1,9 @@
+[submodule "comparison/faang/BioSD"]
+	path = comparison/faang/BioSD
+	url = git@github.com:EMBL-EBI-GCA/BioSD.git
+[submodule "comparison/faang/dcc-validate-metadata"]
+	path = comparison/faang/dcc-validate-metadata
+	url = git@github.com:FAANG/dcc-validate-metadata.git
+[submodule "comparison/hca/ingest-validator"]
+	path = comparison/hca/ingest-validator
+	url = https://github.com/ebi-ait/ingest-validator
