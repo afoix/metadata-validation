@@ -10,19 +10,22 @@ import com.afoix.metadatavalidator.ontologies.OntologySuggestion;
 import com.afoix.metadatavalidator.problems.Problem;
 import com.afoix.metadatavalidator.validators.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.xml.sax.SAXException;
 import uk.ac.ebi.pride.utilities.ols.web.service.client.OLSClient;
 import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfigProd;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.validation.SchemaFactory;
-import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -30,7 +33,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 @RestController
 public class ValidationController {
@@ -86,13 +88,14 @@ public class ValidationController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
             summary = "Validate an XML metadata document.",
+            requestBody = @RequestBody(required = true, content = @Content(mediaType = MediaType.APPLICATION_XML_VALUE)),
             responses = {
                     @ApiResponse(responseCode = "200", description="The provided XML metadata is valid."),
                     @ApiResponse(responseCode = "400", description="The provided XML metadata did not pass validation.")
             }
     )
     public ResponseEntity<List<ValidationResult>> validate(@PathVariable String schemaType,
-                                                           @RequestBody byte[] content) throws IOException, MisconfiguredValidatorException {
+                                                           HttpServletRequest request) throws IOException, MisconfiguredValidatorException {
 
         Validator validator = validators.get(schemaType);
         if (validator == null) {
@@ -100,7 +103,7 @@ public class ValidationController {
         }
 
         List<XMLEntity> entities;
-        XMLEntityLoader loader = new XMLEntityLoader(new ByteArrayInputStream(content)).withSourceName("Submitted entity");
+        XMLEntityLoader loader = new XMLEntityLoader(request.getInputStream()).withSourceName("Submitted entity");
         try {
             entities = loader.load().toList();
         } catch (InvalidFormatException e) {
